@@ -145,7 +145,9 @@ namespace AgendaNovo
 
             NovoAgendamento = new Agendamento
             {
+                Id = value.Id,
                 Cliente = new Cliente
+                
                 {
                     Nome = value.Cliente?.Nome,
                     Telefone = value.Cliente?.Telefone
@@ -164,12 +166,16 @@ namespace AgendaNovo
                 Valor = value.Valor,
                 ValorPendente = value.ValorPendente
             };
-
+            DataSelecionada = value.Data;
             NovoCliente = new Cliente
             {
                 Nome = value.Cliente?.Nome,
                 Telefone = value.Cliente?.Telefone
             };
+            OnPropertyChanged(nameof(NovoAgendamento));
+            OnPropertyChanged(nameof(NovoAgendamento.Tema));
+            OnPropertyChanged(nameof(NovoAgendamento.Horario));
+            OnPropertyChanged(nameof(NovoAgendamento.Crianca));
         }
         [RelayCommand]
         private void LimparCampos()
@@ -326,7 +332,8 @@ namespace AgendaNovo
             }
         }
 
-        [RelayCommand] private void Agendar()
+        [RelayCommand]
+        private void Agendar()
         {
             if (NovoAgendamento == null)
                 NovoAgendamento = new Agendamento();
@@ -374,37 +381,64 @@ namespace AgendaNovo
                     IdadeUnidade = NovoAgendamento.Crianca.IdadeUnidade
                 };
 
-
-                var novo = new Agendamento
+                var agendamentoExistente = ListaAgendamentos
+                    .FirstOrDefault(a => a.Id == NovoAgendamento.Id && NovoAgendamento.Id > 0);
+                if (agendamentoExistente != null)
                 {
-                    Cliente = new Cliente
+                    // Atualiza os dados
+                    agendamentoExistente.Cliente.Nome = NovoCliente.Nome;
+                    agendamentoExistente.Cliente.Telefone = NovoCliente.Telefone;
+                    agendamentoExistente.Pacote = NovoAgendamento.Pacote;
+                    agendamentoExistente.Tema = NovoAgendamento.Tema;
+                    agendamentoExistente.Horario = NovoAgendamento.Horario;
+                    agendamentoExistente.Data = DataSelecionada.Date;
+                    agendamentoExistente.Valor = NovoAgendamento.Valor;
+                    agendamentoExistente.ValorPendente = NovoAgendamento.ValorPendente;
+                    if (agendamentoExistente.Crianca != null)
                     {
-                        Nome = NovoCliente.Nome,
-                        Telefone = NovoCliente.Telefone,
-                    },
-                    Crianca = new Crianca
+                        agendamentoExistente.Crianca.Nome = NovoAgendamento.Crianca.Nome;
+                        agendamentoExistente.Crianca.Idade = NovoAgendamento.Crianca.Idade;
+                        agendamentoExistente.Crianca.Genero = NovoAgendamento.Crianca.Genero;
+                        agendamentoExistente.Crianca.IdadeUnidade = NovoAgendamento.Crianca.IdadeUnidade;
+                    }
+                }
+                else
+                {
+                    // Cria um novo agendamento
+                    int proximoId = ListaAgendamentos.Any() ? ListaAgendamentos.Max(a => a.Id) + 1 : 1;
+                    var novo = new Agendamento
                     {
-                        Nome = NovoAgendamento.Crianca.Nome,
-                        Idade = NovoAgendamento.Crianca.Idade,
-                        Genero = NovoAgendamento.Crianca.Genero,
-                        IdadeUnidade = NovoAgendamento.Crianca.IdadeUnidade
-                    },
-                    Pacote = NovoAgendamento.Pacote,
-                    Horario = NovoAgendamento.Horario,
-                    Data = DataSelecionada.Date,
-                    Tema = NovoAgendamento.Tema,
-                    Valor = NovoAgendamento.Valor,
-                    ValorPendente = NovoAgendamento.ValorPendente
-                };
+                        Id = proximoId,
+                        Cliente = new Cliente
+                        {
+                            Nome = NovoCliente.Nome,
+                            Telefone = NovoCliente.Telefone,
+                        },
+                        Crianca = new Crianca
+                        {
+                            Nome = NovoAgendamento.Crianca.Nome,
+                            Idade = NovoAgendamento.Crianca.Idade,
+                            Genero = NovoAgendamento.Crianca.Genero,
+                            IdadeUnidade = NovoAgendamento.Crianca.IdadeUnidade
+                        },
+                        Pacote = NovoAgendamento.Pacote,
+                        Horario = NovoAgendamento.Horario,
+                        Data = DataSelecionada.Date,
+                        Tema = NovoAgendamento.Tema,
+                        Valor = NovoAgendamento.Valor,
+                        ValorPendente = NovoAgendamento.ValorPendente
+                    };
 
-                ListaAgendamentos.Add(novo);
+                    ListaAgendamentos.Add(novo);
 
 
-                NovoAgendamento = new Agendamento { Crianca = new Crianca(), Data = NovoAgendamento.Data.Date };
-                NovoCliente = new Cliente();
-                AtualizarAgendamentos();
-                AtualizarHorariosDisponiveis();
-                FiltrarAgendamentos();
+                    NovoAgendamento = new Agendamento { Crianca = new Crianca(), Data = NovoAgendamento.Data.Date };
+                    NovoCliente = new Cliente();
+                    AtualizarAgendamentos();
+                    AtualizarHorariosDisponiveis();
+                    FiltrarAgendamentos();
+                    itemSelecionado = null;
+                }
             }
         }
 
@@ -423,6 +457,8 @@ namespace AgendaNovo
         private void Excluir()
         {
             ListaAgendamentos.Remove(ItemSelecionado);
+            AgendamentosFiltrados.Remove(ItemSelecionado);
+            FiltrarAgendamentos();
             AtualizarAgendamentos();
 
             bool clienteAindaTemAgendamentos = ListaAgendamentos.Any(a =>

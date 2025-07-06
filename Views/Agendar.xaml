@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:AgendaViewModel}"
         Title="Agendar"
-        MinWidth="1024" MinHeight="720"
+        MinWidth="600" MinHeight="400"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized">
 
@@ -126,14 +126,14 @@
                             IsReadOnly="True"
                             Background="#88D1D3D8" Foreground="Black" FontFamily="#heveltica" FontSize="24" FontWeight="Bold"
                             BorderBrush="Transparent" SelectionTextBrush="Black"/>
-                    <materialDesign:PackIcon Kind="Cash100" Opacity="0.8" VerticalAlignment="Center" Grid.Column="1" Width="32" Height="32" Foreground="#FFA6FF9F" Margin="115,0,0,0"/>
+                    <materialDesign:PackIcon Kind="Cash100" Opacity="0.6" VerticalAlignment="Center" Grid.Column="1" Width="32" Height="32" Foreground="#FFA6FF9F" Margin="115,0,0,0"/>
 
                     <hc:TextBox  Name="txtvalorpago" Text="{Binding NovoAgendamento.ValorPendente, UpdateSourceTrigger=PropertyChanged }"
                             Grid.Column="2" Width="150" Height="50" HorizontalAlignment="Right"
                             hc:InfoElement.Placeholder="Pago"
                               Background="#88D1D3D8" Foreground="Black" FontFamily="#heveltica" FontSize="24" FontWeight="Bold"
                               BorderBrush="Transparent" SelectionTextBrush="Black"/>
-                    <materialDesign:PackIcon Kind="CashCycle" Opacity="0.8" VerticalAlignment="Center" Grid.Column="2" HorizontalAlignment="Right" Width="32" Height="32" Foreground="#FFA6FF9F"/>
+                    <materialDesign:PackIcon Kind="CashCycle" Opacity="0.6" VerticalAlignment="Center" Grid.Column="2" HorizontalAlignment="Right" Width="32" Height="32" Foreground="#FFA6FF9F"/>
 
 
                 </Grid>
@@ -185,7 +185,7 @@
 
                     <!-- Idade -->
                     <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Left">
-                        <TextBox Width="70" Height="50"
+                        <hc:TextBox Width="70" Height="50" hc:InfoElement.Placeholder="Idade"
                          Text="{Binding NovoAgendamento.Crianca.Idade, UpdateSourceTrigger=PropertyChanged}"
                                  Background="#88D1D3D8" Foreground="Black" HorizontalAlignment="Left"
                                 FontFamily="#heveltica" FontSize="18" FontWeight="Bold"
@@ -221,6 +221,9 @@
                              Margin="10"/>
                     <DataGrid AutoGenerateColumns="False"
                           Height="200"
+                          Width="1000"
+                          HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.CanContentScroll="True"
                           ItemsSource="{Binding ListaAgendamentos}"
                           SelectedItem="{Binding ItemSelecionado, Mode=TwoWay}">
                         <DataGrid.Columns>
